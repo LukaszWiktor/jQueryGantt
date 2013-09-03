@@ -143,7 +143,9 @@ GridEditor.prototype.bindRowEvents = function (task, taskRow) {
   //console.debug("bindRowEvents",this,this.master,this.master.canWrite);
   if (this.master.canWrite) {
     self.bindRowInputEvents(task,taskRow);
-
+    if (!this.master.canResize) {
+        taskRow.find("input[name=duration]").attr("readonly", true);
+    }
   } else { //cannot write: disable input
     taskRow.find("input").attr("readonly", true);
   }
@@ -197,14 +199,21 @@ GridEditor.prototype.bindRowInputEvents = function (task, taskRow) {
           } else {
             var end_as_date = new Date(date.getTime());
             lend = end_as_date.getTime();
-            if (lstart >= lend) {
-              end_as_date.add('d', -1 * task.duration);
-              lstart = end_as_date.getTime();
-            }
+            if (lstart >= lend || !self.master.canResize) {
+                end_as_date.add('d', -1 * task.duration);
+  			  if (!self.master.canResize) {
+  				end_as_date.add('d', 1);
+  			  }
+                lstart = end_as_date.getTime();
+              }
 
-            //update task from editor
-            self.master.beginTransaction();
-            self.master.changeTaskDates(task, lstart, lend);
+              //update task from editor
+              self.master.beginTransaction();
+  			  if (self.master.canResize) {
+                self.master.changeTaskDates(task, lstart, lend);
+  			  } else {
+  				self.master.moveTask(task, lstart);
+  			  }
             self.master.endTransaction();
           }
 
@@ -356,7 +365,7 @@ GridEditor.prototype.openFullEditor = function (task, taskRow) {
   if (task.endIsMilestone)
     taskEditor.find("#endIsMilestone").attr("checked", true);
 
-  taskEditor.find("#duration").val(task.duration);
+  taskEditor.find("#duration").val(task.duration).attr('readonly', !(self.master.canWrite && self.master.canResize));
   taskEditor.find("#start").val(new Date(task.start).format());
   taskEditor.find("#end").val(new Date(task.end).format());
 

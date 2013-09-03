@@ -39,6 +39,7 @@ function GanttMaster() {
 
   this.canWriteOnParent=true;
   this.canWrite=true;
+  this.canResize=true; // set to false in order to keep task duration fixed 
 
   this.firstDayOfWeek = Date.firstDayOfWeek;
 

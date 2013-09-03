@@ -333,7 +333,7 @@ Ganttalendar.prototype.drawTask = function (task) {
 
   taskBox.css({top:top,left:x,width:Math.round((task.end - task.start) * self.fx)});
 
-  if (this.master.canWrite) {
+  if (this.master.canWrite && this.master.canResize) {
     taskBox.resizable({
       handles: 'e' + ( task.depends ? "" : ",w"), //if depends cannot move start
       //helper: "ui-resizable-helper",
